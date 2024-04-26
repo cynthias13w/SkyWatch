@@ -1,0 +1,10 @@
+# change the values below and rename it to config.ini
+
+[LH_OPENAPI]
+LH_SECRET = add value here
+LH_KEY = add value here
+LH_TOKEN_URL = https://api.lufthansa.com/v1/oauth/token
+
+# Define the MongoDB connection settings
+[MONGO_DB]
+MONGO_CLIENT = mongodb+srv://DataEngineering:<CHANGE PASSWORD HERE>@flightproject.qiecgcq.mongodb.net/
