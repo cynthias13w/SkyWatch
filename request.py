@@ -19,7 +19,7 @@ def make_request(url):
     r = requests.get(url, headers=header)
     if r.status_code == 200:
         logging.info('request to URL ' + url + ' status: ' + str(r.status_code))
-        return r.text
+        return r.json()
     else:
         logging.info('request to URL ' + url + ' status: ' + str(r.status_code) + ' message: '+r.text)
         return 'invalid request'
