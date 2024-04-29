@@ -11,16 +11,16 @@ mongo_client = pymongo.MongoClient(config['MONGO_DB']['MONGO_CLIENT'])
 db = mongo_client['SkyWatch']
 collection = db['countries']
 
-
+countries = ['DE','FR','IT','AT']
 try:
-    data = reference_data.get_countries_data('BR')
-    pprint(data)
-    collection.insert_one(data)
-    print('Data saved')
+    for country in countries: 
+        data = reference_data.get_countries_data(country)
+        pprint(data)
+        collection.insert_one(data)
+        print('Data saved')
 
-except requests.exceptions.RequestException as e:
+except:
     print('Something went wrong!!!')
 
 finally:
-    # Close MongoDB connection
     mongo_client.close()

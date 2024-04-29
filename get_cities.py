@@ -1,5 +1,4 @@
 import configparser
-import requests
 import pymongo
 from pprint import pprint
 import reference_data
@@ -18,8 +17,8 @@ try:
     collection.insert_one(data)
     print('Data saved')
 
-except requests.exceptions.RequestException as e:
-    print(f"Error occurred during API request: {e}")
+except:
+    print('Something went wrong!')
 
 finally:
     # Close MongoDB connection
