@@ -35,6 +35,7 @@ def get_header():
     headers = {'Accept': 'application/json', 'Authorization':f'Bearer {token}'}
     return headers
 
+
 def test_db_connection():
     # read config file
     config = configparser.ConfigParser()
@@ -48,5 +49,3 @@ def test_db_connection():
         return "Pinged your deployment. You successfully connected to MongoDB!"
     except Exception as e:
         return e
-
-print(test_db_connection())
