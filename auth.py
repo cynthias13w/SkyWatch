@@ -1,5 +1,7 @@
 import requests
 import configparser
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
 def get_auth_token():
     """
@@ -32,3 +34,19 @@ def get_header():
     token = get_auth_token()
     headers = {'Accept': 'application/json', 'Authorization':f'Bearer {token}'}
     return headers
+
+def test_db_connection():
+    # read config file
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+
+    # Create a new client and connect to the server
+    client = MongoClient(config['MONGO_DB']['MONGO_CLIENT'], server_api=ServerApi('1'))
+    # Send a ping to confirm a successful connection
+    try:
+        client.admin.command('ping')
+        return "Pinged your deployment. You successfully connected to MongoDB!"
+    except Exception as e:
+        return e
+
+print(test_db_connection())
