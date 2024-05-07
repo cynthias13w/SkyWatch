@@ -19,8 +19,7 @@ try:
         collection.insert_one(data)
         print('Data saved')
 
-except:
-    print('Something went wrong!!!')
-
+except Exception as e:
+    print("Error connecting to MongoDB:", e)
 finally:
     mongo_client.close()
