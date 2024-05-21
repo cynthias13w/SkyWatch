@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 import pymongo
 import time
 from collections import deque
+import json
+import os
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -15,15 +17,24 @@ collection = db['flights']
 iata_codes = pd.read_csv('iata_codes.csv')
 
 # list of countries to import 
-france = iata_codes.loc[iata_codes['Country'] == 'France']
-spain = iata_codes.loc[iata_codes['Country'] == 'Spain']
-germany = iata_codes.loc[iata_codes['Country'] == 'Germany']
-italy = iata_codes.loc[iata_codes['Country'] == 'Italy']
-uk = iata_codes.loc[iata_codes['Country'] == 'United Kingdom']
+countries_list = ['France', 'Spain', 'Germany', 'Italy']
 
 # Define rate limits
 MAX_CALLS_PER_SECOND = 6
 MAX_CALLS_PER_HOUR = 1000
+
+# File to save state
+state_file = 'state.json'
+
+def load_state():
+    if os.path.exists(state_file):
+        with open(state_file, 'r') as f:
+            return json.load(f)
+    return None
+
+def save_state(state):
+    with open(state_file, 'w') as f:
+        json.dump(state, f)
 
 # Track timestamps of requests
 second_timestamps = deque()
@@ -69,36 +80,61 @@ def fetch_and_save(origin_code, destiny_code, date):
     current_time = time.time()
     second_timestamps.append(current_time)
     hour_timestamps.append(current_time)
-    
+
+    # Save the state after each fetch and save
+    save_state({
+        'current_date': date.strftime('%Y-%m-%d'),
+        'origin_code': origin_code,
+        'destiny_code': destiny_code,
+        'second_timestamps': list(second_timestamps),
+        'hour_timestamps': list(hour_timestamps)
+    })    
 
 try:
     start_date = datetime.today()
     # end_date = start_date + timedelta(days = 365) 
     end_date = start_date + timedelta(days = 3) # using a smaller window of time for testing
 
-    current_date = start_date
+    # Load state if it exists
+    state = load_state()
+    if state:
+        current_date = datetime.strptime(state['current_date'], '%Y-%m-%d')
+        last_origin_code = state['origin_code']
+        last_destiny_code = state['destiny_code']
+        second_timestamps = deque(state['second_timestamps'])
+        hour_timestamps = deque(state['hour_timestamps'])
+    else:
+        current_date = start_date
+        last_origin_code = None
+        last_destiny_code = None
+
+    countries_df = iata_codes.loc[iata_codes['Country'].isin(countries_list)]
+    countries_df = countries_df.sort_values(by=['Country', 'IATA'])
+    iata_codes = countries_df['IATA'].tolist()
 
     while current_date <= end_date:
-        for origin_code in germany['IATA']:
-            # Flights within Germany 
-            for destiny_code in germany['IATA']:
-                if origin_code != destiny_code: # Making sure it is not the same airport
+
+        for origin_code in iata_codes:
+            # If resuming, skip to the last saved origin code
+            if last_origin_code and origin_code != last_origin_code:
+                continue
+            last_origin_code = None  # Reset after the first match
+
+            for destiny_code in iata_codes:
+                # If resuming, skip to the last saved destiny code
+                if last_destiny_code and destiny_code != last_destiny_code:
+                    continue
+                last_destiny_code = None  # Reset after the first match
+
+                if origin_code != destiny_code:  # Ensure it is not the same airport
                     fetch_and_save(origin_code, destiny_code, current_date)
 
-            # Flights to France
-            for destiny_code in france['IATA']:
-                fetch_and_save(origin_code, destiny_code, current_date)
 
-            # Flights to spain
-            for destiny_code in spain['IATA']:
-                fetch_and_save(origin_code, destiny_code, current_date)
 
-            # Flights to italy
-            for destiny_code in italy['IATA']:
-                fetch_and_save(origin_code, destiny_code, current_date)
+        # Increase the day
+        current_date += timedelta(days=1)
 
-        # increases the day
-        current_date += timedelta(days = 1)
+
 
     
 except Exception as e:
