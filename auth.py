@@ -3,7 +3,7 @@ import configparser
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
-def get_auth_token():
+def get_auth_token(api_key = None):
     """
     get the authentication token
     :return: auth token
@@ -13,8 +13,16 @@ def get_auth_token():
     config.read('config.ini')
 
     # set variables
-    secret = config['LH_OPENAPI']['LH_SECRET'] # client secret
-    key = config['LH_OPENAPI']['LH_KEY'] # client id
+    if (api_key == None) or (api_key == 1):
+        secret = config['LH_OPENAPI']['LH_SECRET'] # client secret
+        key = config['LH_OPENAPI']['LH_KEY'] # client id
+    elif api_key == 2:
+        secret = config['LH_OPENAPI_2']['LH_SECRET'] # client secret
+        key = config['LH_OPENAPI_2']['LH_KEY'] # client id   
+    elif api_key == 3:
+        secret = config['LH_OPENAPI_3']['LH_SECRET'] # client secret
+        key = config['LH_OPENAPI_3']['LH_KEY'] # client id
+    
     token_url = config['LH_OPENAPI']['LH_TOKEN_URL']
     data = {'client_id': key, 'client_secret': secret, 'grant_type': 'client_credentials'}
 
@@ -26,12 +34,12 @@ def get_auth_token():
         return 'invalid token'
 
 
-def get_header():
+def get_header(api_key = None):
     """
     getting the header with authorization token
     :return: header for further requests
     """
-    token = get_auth_token()
+    token = get_auth_token(api_key)
     headers = {'Accept': 'application/json', 'Authorization':f'Bearer {token}'}
     return headers
 

@@ -17,11 +17,12 @@ collection = db['flights']
 iata_codes = pd.read_csv('iata_codes.csv')
 
 # list of countries to import 
-countries_list = ['France', 'Spain', 'Germany', 'Italy']
+countries_list = ['France', 'Germany', 'Spain', 'Italy', 'Denmark', 'USA', 'United Kingdom', 'Turkey']
 
 # Define rate limits
-MAX_CALLS_PER_SECOND = 6
+MAX_CALLS_PER_SECOND = 5
 MAX_CALLS_PER_HOUR = 1000
+
 
 # File to save state
 state_file = 'state.json'
@@ -70,11 +71,15 @@ def fetch_and_save(origin_code, destiny_code, date):
     # check for rate limit 
     wait_for_rate_limit()
 
-    print('trying to get flights: ' + origin_code + ' - ' + destiny_code + ' at ' + date.strftime('%Y-%m-%d'))
+    current_time = datetime.now().strftime('%H:%M')
+    print(f'Fetching flight: {origin_code} - {destiny_code} on {date.strftime("%Y-%m-%d")} at {current_time}')
     data = operations.get_flight_schedules(origin_code, destiny_code, date.strftime('%Y-%m-%d'))
     if data != 'invalid request':
         collection.insert_one(data)
         print('Data saved: ' + origin_code + ' - ' + destiny_code)
+        aux_return = True
+    else:
+        aux_return = False
 
     # Update timestamps
     current_time = time.time()
@@ -89,11 +94,12 @@ def fetch_and_save(origin_code, destiny_code, date):
         'second_timestamps': list(second_timestamps),
         'hour_timestamps': list(hour_timestamps)
     })    
+    return aux_return
 
 try:
-    start_date = datetime.today()
+    start_date = datetime.today() + timedelta(days = 21)
     # end_date = start_date + timedelta(days = 365) 
-    end_date = start_date + timedelta(days = 3) # using a smaller window of time for testing
+    end_date = start_date + timedelta(days = 20) # using a smaller window of time for testing
 
     # Load state if it exists
     state = load_state()
@@ -112,28 +118,28 @@ try:
     countries_df = countries_df.sort_values(by=['Country', 'IATA'])
     iata_codes = countries_df['IATA'].tolist()
 
-    while current_date <= end_date:
 
-        for origin_code in iata_codes:
-            # If resuming, skip to the last saved origin code
-            if last_origin_code and origin_code != last_origin_code:
+    for origin_code in iata_codes:
+        # If resuming, skip to the last saved origin code
+        if last_origin_code and origin_code != last_origin_code:
+            continue
+        last_origin_code = None  # Reset after the first match
+
+        for destiny_code in iata_codes:
+            # If resuming, skip to the last saved destiny code
+            if last_destiny_code and destiny_code != last_destiny_code:
                 continue
-            last_origin_code = None  # Reset after the first match
+            last_destiny_code = None  # Reset after the first match
 
-            for destiny_code in iata_codes:
-                # If resuming, skip to the last saved destiny code
-                if last_destiny_code and destiny_code != last_destiny_code:
-                    continue
-                last_destiny_code = None  # Reset after the first match
+            if origin_code != destiny_code:  # Ensure it is not the same airport
+                while current_date <= end_date:
+                    if fetch_and_save(origin_code, destiny_code, current_date):
+                        current_date += timedelta(days=1)
+                    else:
+                        current_date = end_date + timedelta(days=1) # finishing the loop to not waste calls 
 
-                if origin_code != destiny_code:  # Ensure it is not the same airport
-                    fetch_and_save(origin_code, destiny_code, current_date)
-
-
-
-        # Increase the day
-        current_date += timedelta(days=1)
-
+                # Reset current_date after the loop
+                current_date = start_date                    
 
 
     

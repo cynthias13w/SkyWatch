@@ -3,7 +3,7 @@ import request
 base_url = 'https://api.lufthansa.com/v1/operations/'
 
 
-def get_flight_schedules(origin, destination, from_date_time):
+def get_flight_schedules(origin, destination, from_date_time, api_key = None):
     """
     getting flight schedules
     :param origin:
@@ -12,7 +12,7 @@ def get_flight_schedules(origin, destination, from_date_time):
     :return schedule json object:
     """
     url = base_url+'schedules/'+origin+'/'+destination+'/'+from_date_time
-    return request.make_request(url)
+    return request.make_request(url, api_key)
 
 
 def get_flight_status(flight_number, date):
