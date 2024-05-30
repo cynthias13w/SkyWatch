@@ -1,7 +1,8 @@
-from app.models import Flight
 from app.config import settings
-from typing import List, Optional
+from typing import List
 import pymongo
+from app.models import Flight
+
 
 client = pymongo.MongoClient(settings.MONGO_URI)
 
@@ -14,17 +15,41 @@ async def get_one_flight():
     cursor = client[settings.DB_NAME][settings.COLLECTION_NAME].find_one()
     return cursor
 
-async def get_flights(origin: Optional[str] = None, 
-                      destiny: Optional[str] = None, 
-                      date: Optional[str] = None) -> List[Flight]:
-    query = {}
-    if origin:
-        query['origin'] = origin
-    if destiny:
-        query['destiny'] = destiny
-    if date:
-        query['date'] = date
+async def get_flights(airport_departure: str, 
+                      airport_arrival: str, 
+                      date_departure: str) -> List[Flight]:
+    query = {
+        '$and': [
+            {'ScheduleResource.Schedule.Flight.Departure.AirportCode': airport_departure},
+            {'ScheduleResource.Schedule.Flight.Arrival.AirportCode': airport_arrival},
+            {'ScheduleResource.Schedule.Flight.Departure.ScheduledTimeLocal.DateTime': date_departure}
+        ]
+    }
+    projection = {
+        '_id': 0,  
+        'ScheduleResource.Schedule.Flight.Departure.AirportCode': 1,
+        'ScheduleResource.Schedule.Flight.Arrival.AirportCode': 1,
+        'ScheduleResource.Schedule.Flight.Departure.ScheduledTimeLocal.DateTime': 1,
+        'ScheduleResource.Schedule.Flight.MarketingCarrier.AirlineID': 1,
+        'ScheduleResource.Schedule.Flight.MarketingCarrier.FlightNumber': 1
+    }
+    cursor = client[settings.DB_NAME][settings.COLLECTION_NAME].find(query, projection)
+    
+    flights = []
+    for document in cursor:
+        for schedule in document.get('ScheduleResource', {}).get('Schedule', []):
+            for flight in schedule.get('Flight', []):
+                try:    
+                    flight_data = Flight(
+                        departure_airport = flight['Departure']['AirportCode'],
+                        arrival_airport = flight['Arrival']['AirportCode'],
+                        departure_date = flight['Departure']['ScheduledTimeLocal']['DateTime'],
+                        airline_id = flight['MarketingCarrier']['AirlineID'],
+                        flight_number = flight['MarketingCarrier']['FlightNumber']
+                    )
+                    flights.append(flight_data)
+                except TypeError as e:
+                    print("TypeError:", e)
+                    continue
 
-    cursor = client[settings.DB_NAME][settings.COLLECTION_NAME].find(query)
-    flights = await cursor.to_list(length=100)
-    return [Flight(**flight) for flight in flights]
+    return flights

@@ -8,4 +8,5 @@ api.include_router(router)
 
 @api.get('/alive')
 def alive():
+    """Tests if API is functional"""
     return {'status': 'Welcome to the Sky Watch API. The API is working!'}
