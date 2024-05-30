@@ -1,0 +1,12 @@
+FROM ubuntu:latest
+
+RUN apt-get update && \
+    apt-get install -y python3 curl
+
+COPY test_api.sh /app/test_api.sh
+
+RUN chmod +x /app/test_api.sh
+
+WORKDIR /app
+
+CMD ["./test_api.sh"]

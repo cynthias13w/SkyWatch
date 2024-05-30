@@ -6,7 +6,21 @@ services:
     container_name: flight_api
     ports:
       - "8000:8000"
+    networks:
+      - test_network
     env_file:
       - .env
 
+  test:
+    build: 
+      context: .
+      dockerfile: Dockerfile.test    
+    container_name: test_container
+    networks:
+      - test_network
+    command: sh test_api.sh
+    depends_on:
+      - api
 
+networks:
+  test_network:

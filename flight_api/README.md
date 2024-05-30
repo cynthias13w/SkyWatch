@@ -10,3 +10,4 @@ This is a FastAPI application that queries a MongoDB database to return flight i
 
 ```sh
 docker-compose up --build
+bash test_api.sh

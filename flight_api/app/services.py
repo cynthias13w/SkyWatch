@@ -2,6 +2,7 @@ from app.config import settings
 from typing import List
 import pymongo
 from app.models import Flight
+from fastapi import Query
 
 
 client = pymongo.MongoClient(settings.MONGO_URI)
@@ -15,9 +16,11 @@ async def get_one_flight():
     cursor = client[settings.DB_NAME][settings.COLLECTION_NAME].find_one()
     return cursor
 
-async def get_flights(airport_departure: str, 
-                      airport_arrival: str, 
-                      date_departure: str) -> List[Flight]:
+async def get_flights(
+    airport_departure: str = Query(..., description='IATA code of the departure airport'),
+    airport_arrival: str = Query(..., description='IATA code of the arrival airport'),
+    date_departure: str = Query(..., description='Departure date in YYYY-MM-DDThh:mm format')
+) -> List[Flight]:
     query = {
         '$and': [
             {'ScheduleResource.Schedule.Flight.Departure.AirportCode': airport_departure},
@@ -49,7 +52,7 @@ async def get_flights(airport_departure: str,
                     )
                     flights.append(flight_data)
                 except TypeError as e:
-                    print("TypeError:", e)
+                    print('TypeError:', e)
                     continue
 
     return flights
