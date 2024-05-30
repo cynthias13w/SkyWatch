@@ -65,7 +65,7 @@ def fetch_and_save(origin_code, destiny_code, date):
     print(f'Fetching flight: {origin_code} - {destiny_code} on {date.strftime("%Y-%m-%d")} at {current_time}')
     data = operations.get_flight_schedules(origin_code, destiny_code, date.strftime('%Y-%m-%d'))
     if data != 'invalid request':
-        #collection.insert_one(data)
+        collection.insert_one(data)
         print('Data saved: ' + origin_code + ' - ' + destiny_code)
         aux_return = True
     else:
