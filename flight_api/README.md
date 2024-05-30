@@ -5,7 +5,7 @@ This is a FastAPI application that queries a MongoDB database to return flight i
 ## Running the Application
 
 1. Clone the repository.
-2. Create a `.env` file with your MongoDB connection string.
+2. Create a `.env` file with the varibles MONGO_URI, DB_NAME, COLLECTION_NAME
 3. Build and start the containers using Docker Compose.
 
 ```sh
