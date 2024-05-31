@@ -12,8 +12,7 @@ mongo_client = pymongo.MongoClient(settings.MONGO_CLIENT)
 db = mongo_client[settings.MONGO_DB]
 collection = db[settings.MONGO_COLLECTION]
 
-iata_codes = pd.read_csv('../iata/iata_codes.csv')
-
+iata_codes = pd.read_csv('iata_codes.csv')
 # File to save state
 state_file = 'state.json'
 
@@ -26,7 +25,6 @@ def load_state():
 def save_state(state):
     with open(state_file, 'w') as f:
         json.dump(state, f)
-
 # Track timestamps of requests
 second_timestamps = deque()
 hour_timestamps = deque()
@@ -95,7 +93,6 @@ try:
     countries_df = iata_codes.loc[iata_codes['Country'].isin(countries_list)]
     countries_df = countries_df.sort_values(by=['Country', 'IATA'])
     iata_codes = countries_df['IATA'].tolist()
-
     # Load state if it exists - it means that the script is resuming from a previous run
     state = load_state()
     if state:
@@ -114,13 +111,11 @@ try:
         if last_origin_code and origin_code != last_origin_code:
             continue
         last_origin_code = None  # Reset after the first match
-
         for destiny_code in iata_codes:
             # If resuming, skip to the last saved destiny code
             if last_destiny_code and destiny_code != last_destiny_code:
                 continue
             last_destiny_code = None  # Reset after the first match
-
             if origin_code != destiny_code:  # Ensure it is not the same airport
                 while current_date <= end_date:
                     if fetch_and_save(origin_code, destiny_code, current_date):

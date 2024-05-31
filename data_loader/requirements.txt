@@ -1,6 +1,6 @@
 requests
-beautifulsoup4
 pandas
 configparser
-operations
 pymongo
+pydantic
+pydantic_settings

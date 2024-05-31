@@ -8,6 +8,7 @@ This script will load data from Lufthansa API into a given Mongo Instance
 3. Run the script with python3
 
 ```sh
-python3 get_flights.py
+docker build -t data_loader .
+docker run --env-file .env data_loader
 
 
