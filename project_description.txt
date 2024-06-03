@@ -1,0 +1,44 @@
+**Overview:**
+SkyWatch is a flight recommendation system designed to assist travelers in finding suitable flight itineraries based on their starting point and date. We scraped data from Lufthansa developer API to collect flight information.
+
+**Project Objectives:**
+
+1. Retrieve flight data from open sources using the Lufthansa API.
+2. Store the scraped data in a MongoDB database.
+3. Develop an API to access the flight data.
+4. Create a dashboard to visualize the flight data.
+
+**Contributors:**
+
+- Renata
+- Faizan
+- Cynthia
+
+**Key Activities:**
+
+1. **Data Scraping**
+    - Utilized the Lufthansa API to retrieve flight information.
+    - Implemented a script to scrape IATA codes.
+
+2. **Storage**
+    - Stored the scraped data in a MongoDB Atlas Database
+
+3. **API Development:**
+    - Developed an API using FastAPI to provide access to the flight data stored in MongoDB.
+
+4. **Dashboard Creation:**
+    - Used Dash framework to create a dashboard for visualizing flight data
+    - Integrated the dashboard with the API to fetch flight data from the database
+
+5. **Containerization:**
+    - Dockerized each component of the project including the MongoDB database, API, and dashboard.
+    - Utilized Docker Compose for orchestrating the deployment of multiple containers.
+
+
+**Further Improvements:**
+
+- Implement feature that lets user input their budget to search for suitable flights
+- Implement machine learning algorithms for personalized flight recommendations
+- Expand data sources for more flight information
+- Provide updates in real-time
+- Enhance the dashboard with more interactive features
