@@ -1,0 +1,5 @@
+certifi
+dash
+pandas
+pymongo
+pydantic_settings
