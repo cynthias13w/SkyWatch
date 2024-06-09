@@ -20,5 +20,5 @@ curl -X 'GET' \
 
 # Get formatted flights
 curl -X 'GET' \
-  'http://api:8000/flights?airport_departure=BER&airport_arrival=MUC&date_departure=2024-07-15T18%3A20' \
+  'http://api:8000/flights?airport_departure=BER&airport_arrival=MUC&date_departure=2024-07-15' \
   -H 'accept: application/json'
