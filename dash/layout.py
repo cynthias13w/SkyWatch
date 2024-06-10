@@ -1,8 +1,9 @@
-from dash import html, dash_table, dcc
+from dash import html, dash_table, dcc, Input, Output, Dash
 from transform.schedules import Schedules
 from functions import generate_stats_card
 import dash_bootstrap_components as dbc
 
+app = Dash()
 schedules = Schedules()
 tab_style = {
     'idle':{
@@ -31,7 +32,8 @@ tab_style = {
 }
 
 num_of_countries = 5
-applayout = html.Div(style={'backgroundColor': 'white'},
+applayout = html.Div(
+    style={'backgroundColor': 'white'},
     children=[
         html.H1(
             children='✈️ SkyWatch',
@@ -41,15 +43,46 @@ applayout = html.Div(style={'backgroundColor': 'white'},
             dbc.Container([
                 dbc.Row(
                     dbc.Col(
-                        dcc.Tabs(id='graph-tabs', value='overview', children=[
-                            dcc.Tab(label='Overview', value='overview',style=tab_style['idle'],selected_style=tab_style['active']),
-                            dcc.Tab(label='Search', value='content_creators',style=tab_style['idle'],selected_style=tab_style['active']),
-                            dcc.Tab(label='About', value='year',style=tab_style['idle'],selected_style=tab_style['active'])
-                        ], style={'marginTop': '15px','height':'50px'})
-                    ,width=6)
+                        dcc.Tabs(
+                            id='graph-tabs',
+                            value='overview',
+                            children=[
+                                dcc.Tab(label='Overview', value='overview', style=tab_style['idle'], selected_style=tab_style['active']),
+                                dcc.Tab(label='Search', value='search', style=tab_style['idle'], selected_style=tab_style['active']),
+                                dcc.Tab(label='About', value='about', style=tab_style['idle'], selected_style=tab_style['active'])
+                            ],
+                            style={'marginTop': '15px', 'height': '50px'}
+                        ),
+                        width=6
+                    )
                 )
             ]),
-            html.Div(style={'marginTop': '15px','height':'50px'},
+            dbc.Row([
+                dcc.Loading([
+                    html.Div(id='tabs-content')
+                ], type='default', color='#deb522')
+            ])
+        ])
+    ]
+)
+
+@app.callback(
+    Output('tabs-content', 'children'),
+    [Input('graph-tabs', 'value')]
+)
+def update_tab(tab):
+    if tab == 'overview':
+        return html.Div([
+            html.H3('Schedules'),
+            dash_table.DataTable(
+                data=schedules.normalize_df(),
+                page_size=10,
+                style_cell={'padding': '7px', 'textAlign': 'center'},
+                style_header={'background': '#7393B3'}
+            )
+        ])
+    elif tab == 'search':
+        return html.Div(style={'marginTop': '15px','height':'50px'},
                 children=[
                     html.Label('🛫 Departure:'),
                     dcc.Input(
@@ -68,20 +101,7 @@ applayout = html.Div(style={'backgroundColor': 'white'},
                         id='input-3',  # Changed id from 'input-2' to 'input-3' to make it unique
                         type='text',
                         placeholder='Enter Date'
-                    ),
-                    html.Div(
-                        children=[
-                            html.H3('Schedules'),
-                            dash_table.DataTable(
-                                data=schedules.normalize_df(),
-                                page_size=10,
-                                style_cell={'padding': '7px', 'textAlign': 'center'},
-                                style_header={'background': '#7393B3'}
-                            )
-                        ],
+                    )]
                     )
-                ]
-            )
-        ])
-    ]
-)
+    elif tab == 'about':
+        return 'Coming soon'
