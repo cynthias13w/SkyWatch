@@ -16,7 +16,7 @@ class Schedules:
             self.schedule.extend(item['ScheduleResource']['Schedule'])
         schedulesdf = pd.DataFrame(self.schedule)
         return schedulesdf
-    
+
     def transform_df(self):
         schedulesdf = self.get_data_from_api()
         totalJourneydf = pd.json_normalize(schedulesdf['TotalJourney'])
@@ -25,8 +25,15 @@ class Schedules:
         schedulesdf = pd.concat([flightdf, durationdf], axis=1).reset_index(drop=True)
         flightdf = pd.json_normalize(schedulesdf['Flight'])
         schedulesdf = pd.concat([flightdf, schedulesdf], axis=1)
+        schedulesdf.drop(columns=['Duration', 'MarketingCarrier.AirlineID',
+        'MarketingCarrier.FlightNumber', 'Equipment.AircraftCode',
+        'Details.Stops.StopQuantity', 'Details.DaysOfOperation',
+        'Details.DatePeriod.Effective', 'Details.DatePeriod.Expiration',
+        'OperatingCarrier.AirlineID'],inplace=True)
+        # schedulesdf.columns = ['Departure', 'Departure Time', 'Departure Terminal', 'Arrival', 'Arrival Time', 'Arrival Terminal', 'Flight']
+        schedulesdf.dropna(inplace=True)
         return schedulesdf
-    
+
     def normalize_df(self):
         schedulesdf = self.transform_df()
         schedulesdf.drop('Flight', inplace=True, axis=1)

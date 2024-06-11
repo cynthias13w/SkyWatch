@@ -73,7 +73,7 @@ applayout = html.Div(
 def update_tab(tab):
     if tab == 'overview':
         return html.Div([
-            html.H3('Schedules'),
+            html.H3('Schedules',  style={'color': 'black'}),
             dash_table.DataTable(
                 data=schedules.normalize_df(),
                 page_size=10,
