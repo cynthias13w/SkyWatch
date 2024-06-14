@@ -30,7 +30,7 @@ class Schedules:
         'Details.Stops.StopQuantity', 'Details.DaysOfOperation',
         'Details.DatePeriod.Effective', 'Details.DatePeriod.Expiration',
         'OperatingCarrier.AirlineID'],inplace=True)
-        # schedulesdf.columns = ['Departure', 'Departure Time', 'Departure Terminal', 'Arrival', 'Arrival Time', 'Arrival Terminal', 'Flight']
+        schedulesdf.columns = ['Departure', 'Departure Time', 'Departure Terminal', 'Arrival', 'Arrival Time', 'Arrival Terminal', 'Flight']
         schedulesdf.dropna(inplace=True)
         return schedulesdf
 
@@ -43,7 +43,7 @@ class Schedules:
     def search_df(self, departure, arrival):
         schedulesdf = self.transform_df()
         schedulesdf.drop('Flight', inplace=True, axis=1)
-        schedulesdf = schedulesdf[(schedulesdf['Departure.AirportCode'] == departure) &
-                          (schedulesdf['Arrival.AirportCode'] == arrival)]
+        schedulesdf = schedulesdf[(schedulesdf['Departure'] == departure) &
+                          (schedulesdf['Arrival'] == arrival)]
         schedules = schedulesdf.to_dict('records')
         return schedules

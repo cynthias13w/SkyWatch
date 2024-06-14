@@ -91,7 +91,7 @@ def update_tab(tab):
         ])
     elif tab == 'search':
         search_layout = html.Div(
-            style={'marginTop': '15px', 'height': '100vh'},
+            style={'marginTop': '15px'},
             children=[
                 html.Form([
                     html.Label('🛫 Departure:'),
