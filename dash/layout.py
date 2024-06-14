@@ -91,7 +91,7 @@ def update_tab(tab):
         ])
     elif tab == 'search':
         search_layout = html.Div(
-            style={'marginTop': '15px'},
+            style={'marginTop': '15px', 'height': '100vh'},
             children=[
                 html.Form([
                     html.Label('🛫 Departure:'),
@@ -122,7 +122,30 @@ def update_tab(tab):
         )
         return search_layout
     elif tab == 'about':
-        return 'Coming soon'
+        about = """SkyWatch leverages the power of the Lufthansa API to gather flight data, ensuring you find the best itineraries based on your starting point and preferred travel dates.
+        Our backend is powered by a MongoDB Atlas database where all scraped information is stored for quick access.
+        We developed a user-friendly API with FastAPI for data retrieval.
+        Our dashboard was created using the Dash framework. Every component of SkyWatch is containerized using Docker for more efficient deployment.
+
+        🌍🛫✨"""
+        return html.Div(
+                    style={
+                        'display': 'flex',
+                        'flex-direction': 'column',
+                        'justify-content': 'flex-start',
+                        'align-items': 'center',
+                        'height': '100vh',
+                        'padding-top': '20vh',
+                        'text-align': 'center'
+                    },
+                    children=[
+                        html.Div([
+                            html.H1("Welcome to SkyWatch!"),
+                            html.P(about),
+                            html.P("Stay tuned for more features and enhancements!")
+                        ])
+                    ]
+                )
 # Define the callback for the button click
 @app.callback(
     Output("modal", "is_open"),
