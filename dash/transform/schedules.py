@@ -39,3 +39,11 @@ class Schedules:
         schedulesdf.drop('Flight', inplace=True, axis=1)
         schedules = schedulesdf.to_dict('records')
         return schedules
+
+    def search_df(self, departure, arrival):
+        schedulesdf = self.transform_df()
+        schedulesdf.drop('Flight', inplace=True, axis=1)
+        schedulesdf = schedulesdf[(schedulesdf['Departure.AirportCode'] == departure) &
+                          (schedulesdf['Arrival.AirportCode'] == arrival)]
+        schedules = schedulesdf.to_dict('records')
+        return schedules
