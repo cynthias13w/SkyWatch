@@ -3,3 +3,4 @@ dash
 pandas
 pymongo
 pydantic_settings
+dash-bootstrap-components
