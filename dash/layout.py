@@ -1,6 +1,5 @@
 from dash import html, dash_table, dcc, Input, Output, Dash, State
 from transform.schedules import Schedules
-from functions import generate_stats_card
 import dash_bootstrap_components as dbc
 
 app = Dash()
